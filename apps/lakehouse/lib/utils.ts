@@ -1,0 +1,8 @@
+export const MAX_DATASET_SIZE=100*1024*1024;
+export function safeDatasetName(v:string){const x=v.normalize('NFKC').replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_]+/g,'_').replace(/^_+|_+$/g,'').slice(0,60).toLowerCase();if(!x)throw new Error('Dataset name must contain letters or numbers.');return /^[a-z_]/.test(x)?x:`d_${x}`}
+export function quoteId(v:string){return `"${v.replaceAll('"','""')}"`}
+export function quoteText(v:string){return `'${v.replaceAll("'","''")}'`}
+export function safeSQL(sql:string){const s=sql.trim().replace(/;\s*$/,'');if(!s)throw new Error('Enter a SQL query.');if(s.includes(';'))throw new Error('Run one statement at a time.');if(!/^(select|with|explain|describe|show|summarize)\b/i.test(s))throw new Error('Only read-only analytical SQL is allowed.');if(/\b(attach|detach|copy|install|load|call|pragma|export|import|create|drop|alter|insert|update|delete|merge|vacuum|checkpoint|force_install)\b/i.test(s))throw new Error('That statement is blocked in the demo query console.');return s}
+export function csv(rows:any[]){if(!rows.length)return '';const keys=Object.keys(rows[0]);const esc=(v:any)=>{const x=v==null?'':typeof v==='object'?JSON.stringify(v):String(v);return /[",\n\r]/.test(x)?`"${x.replaceAll('"','""')}"`:x};return [keys.map(esc).join(','),...rows.map(r=>keys.map(k=>esc(r[k])).join(','))].join('\n')}
+export function msg(e:any){return e?.message||'The operation failed.'}
+export function bytes(n:number){if(!n)return '0 B';const u=['B','KiB','MiB','GiB'];const i=Math.min(Math.floor(Math.log(n)/Math.log(1024)),3);return `${(n/1024**i).toFixed(i?1:0)} ${u[i]}`}
